@@ -1,4 +1,4 @@
-use yaah::{aoc, aoc_lib, aoc_year};
+use yaah::{aoc_lib, aoc_year};
 
 aoc_year!(2023);
 
