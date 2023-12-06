@@ -11,7 +11,7 @@ struct Draw {
 }
 
 #[aoc(day2, part1)]
-fn day2_part1(_input: &'static str) -> u32 {
+fn day2_part1(input: &'static str) -> u32 {
     let source_draw = &Draw {
         colors: HashMap::from([
             ("red".to_string(), 12),
@@ -20,7 +20,7 @@ fn day2_part1(_input: &'static str) -> u32 {
         ]),
     };
 
-    _input
+    input
         .lines()
         .filter_map(parse_game)
         .filter(|game| {
@@ -59,8 +59,8 @@ fn check_draw_is_legal(source: &Draw, target: &Draw) -> bool {
 }
 
 #[aoc(day2, part2)]
-fn day2_part2(_input: &'static str) -> u32 {
-    _input
+fn day2_part2(input: &'static str) -> u32 {
+    input
         .lines()
         .filter_map(parse_game)
         .map(draw_from_highest_values)
