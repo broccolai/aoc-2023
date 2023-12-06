@@ -1,5 +1,5 @@
-use std::iter::{Iterator};
-use yaah::{aoc};
+use std::iter::Iterator;
+use yaah::aoc;
 
 const BASE_TEN: u32 = 10;
 
@@ -13,11 +13,13 @@ fn day1_part1(_input: &'static str) -> u32 {
 }
 
 fn first_and_last_digit_in_string(input: &str) -> Option<(u32, u32)> {
-    let first = input.chars()
+    let first = input
+        .chars()
         .find(|char| char.is_ascii_digit())
         .and_then(|char| char.to_digit(BASE_TEN));
 
-    let last = input.chars()
+    let last = input
+        .chars()
         .rfind(|char| char.is_ascii_digit())
         .and_then(|char| char.to_digit(BASE_TEN));
 
@@ -43,19 +45,12 @@ fn first_and_last_digit_in_string_including_words(input: &str) -> (u32, u32) {
 #[derive(Clone, Copy)]
 enum Direction {
     FORWARD,
-    BACKWARD
+    BACKWARD,
 }
 
 const NUMBERS: [&str; 18] = [
-    "1", "one",
-    "2", "two",
-    "3", "three",
-    "4", "four",
-    "5", "five",
-    "6", "six",
-    "7", "seven",
-    "8", "eight",
-    "9", "nine",
+    "1", "one", "2", "two", "3", "three", "4", "four", "5", "five", "6", "six", "7", "seven", "8",
+    "eight", "9", "nine",
 ];
 
 // not perfect, had a lot of issues trying to do other things.
@@ -63,7 +58,7 @@ const NUMBERS: [&str; 18] = [
 fn search_input_for_number_directionally(input: &str, direction: Direction) -> u32 {
     let find_directionally: fn(&str, &str) -> Option<usize> = match direction {
         Direction::FORWARD => |input, number| input.find(number),
-        Direction::BACKWARD => |input, number| input.rfind(number)
+        Direction::BACKWARD => |input, number| input.rfind(number),
     };
 
     let found_numbers = NUMBERS
@@ -72,8 +67,9 @@ fn search_input_for_number_directionally(input: &str, direction: Direction) -> u
 
     let (result, _) = match direction {
         Direction::FORWARD => found_numbers.min_by_key(|(_, index)| *index),
-        Direction::BACKWARD => found_numbers.max_by_key(|(_, index)| *index)
-    }.unwrap();
+        Direction::BACKWARD => found_numbers.max_by_key(|(_, index)| *index),
+    }
+    .unwrap();
 
     let mut index = NUMBERS.iter().position(|&number| number == result).unwrap();
 
