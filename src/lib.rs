@@ -5,6 +5,7 @@ aoc_year!(2023);
 mod days {
     pub mod day1;
     pub mod day2;
+    pub mod day3;
 }
 
 aoc_lib!(with_benchmarks);
