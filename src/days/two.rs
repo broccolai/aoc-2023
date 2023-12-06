@@ -45,7 +45,7 @@ fn parse_draw(source: &str) -> Draw {
     let colors: HashMap<String, u32> = source
         .split(", ")
         .filter_map(|color| color.split_once(' '))
-        .map(|(amount, name)| (name.to_string(), amount.parse::<u32>().unwrap()))
+        .map(|(amount, name)| (name.to_owned(), amount.parse::<u32>().unwrap()))
         .collect();
 
     Draw { colors }
@@ -53,7 +53,7 @@ fn parse_draw(source: &str) -> Draw {
 
 fn check_draw_is_legal(source: &Draw, target: &Draw) -> bool {
     target.colors.iter().all(|(key, value)| {
-        source.colors.get(key).map(|source_color| value <= source_color).unwrap_or(false)
+        *value <= *source.colors.get(key).unwrap_or(&0)
     })
 }
 
@@ -62,20 +62,20 @@ fn day2_part2(_input: &'static str) -> u32 {
     _input.lines()
         .filter_map(parse_game)
         .map(draw_from_highest_values)
-        .map(|draw| draw.colors.iter().fold(1, |acc, (_, value)| acc * value))
+        .map(|draw| draw.colors.values().product::<u32>())
         .sum()
 }
 
 fn draw_from_highest_values(game: Game) -> Draw {
     let result: HashMap<String, u32> = game.draws
         .iter()
-        .flat_map(|draw| draw.colors.clone())
-        .fold(HashMap::new(), |mut accumulaor, (key, value)| {
-            accumulaor.entry(key)
+        .flat_map(|draw| &draw.colors)
+        .fold(HashMap::new(), |mut accumulator, (key, &value)| {
+            accumulator.entry(key.clone())
                 .and_modify(|current| *current = Ord::max(*current, value))
                 .or_insert(value);
 
-            accumulaor
+            accumulator
         });
 
     Draw { colors: result }
