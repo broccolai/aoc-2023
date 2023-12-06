@@ -56,3 +56,27 @@ fn check_draw_is_legal(source: &Draw, target: &Draw) -> bool {
         source.colors.get(key).map(|source_color| value <= source_color).unwrap_or(false)
     })
 }
+
+#[aoc(day2, part2)]
+fn day2_part2(_input: &'static str) -> u32 {
+    _input.lines()
+        .filter_map(parse_game)
+        .map(draw_from_highest_values)
+        .map(|draw| draw.colors.iter().fold(1, |acc, (_, value)| acc * value))
+        .sum()
+}
+
+fn draw_from_highest_values(game: Game) -> Draw {
+    let result: HashMap<String, u32> = game.draws
+        .iter()
+        .flat_map(|draw| draw.colors.clone())
+        .fold(HashMap::new(), |mut accumulaor, (key, value)| {
+            accumulaor.entry(key)
+                .and_modify(|current| *current = Ord::max(*current, value))
+                .or_insert(value);
+
+            accumulaor
+        });
+
+    Draw { colors: result }
+}
