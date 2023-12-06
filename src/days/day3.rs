@@ -1,12 +1,19 @@
+use crate::days::day3::Part::{Gear, Other};
 use std::ops::Range;
 use yaah::aoc;
 
 enum Token {
     Empty,
-    Part,
+    Part(Part),
     Number(u32),
 }
 
+enum Part {
+    Gear,
+    Other,
+}
+
+#[derive(Debug)]
 struct SchematicNumber {
     row: usize,
     location: Range<usize>,
@@ -38,7 +45,8 @@ fn parse_character(char: char) -> Token {
     match char {
         c if c.is_ascii_digit() => Token::Number(c.to_digit(10).unwrap()),
         '.' => Token::Empty,
-        _ => Token::Part,
+        '*' => Token::Part(Gear),
+        _ => Token::Part(Other),
     }
 }
 
@@ -70,7 +78,7 @@ fn find_numbers(schematic: &[Vec<Token>]) -> Vec<SchematicNumber> {
 
             let schematic_number = SchematicNumber {
                 row: line_index,
-                location: cursor_start..cursor,
+                location: cursor_start..(cursor + 1),
                 value: number,
             };
 
@@ -93,13 +101,59 @@ fn schematic_number_has_neighbouring_part(
 
         let Range { start, end } = &schematic_number.location;
 
-        for token_index in start.saturating_sub(1)..=end.saturating_add(1) {
+        for token_index in start.saturating_sub(1)..end.saturating_add(1) {
             match tokens.get(token_index) {
-                Some(Token::Part) => return true,
+                Some(Token::Part(_)) => return true,
                 _ => continue,
             }
         }
     }
 
     false
+}
+
+#[aoc(day3, part2)]
+fn day3_part2(input: &'static str) -> u32 {
+    let parsed_input = parse_input(input);
+    let schematic_numbers = find_numbers(&parsed_input);
+
+    gears_surrounded_by_two_numbers_multiplied(&schematic_numbers, &parsed_input)
+}
+
+fn gears_surrounded_by_two_numbers_multiplied(
+    schematic_numbers: &[SchematicNumber],
+    schematic: &[Vec<Token>],
+) -> u32 {
+    let mut result: Vec<u32> = Vec::new();
+
+    for (row, line) in schematic.iter().enumerate() {
+        for (column, token) in line.iter().enumerate() {
+            let Token::Part(part) = token else { continue };
+            if let Other = part {
+                continue;
+            }
+
+            let valid_numbers: Vec<&SchematicNumber> = schematic_numbers
+                .iter()
+                .filter(|schematic_number| schematic_number.row.abs_diff(row) <= 1)
+                .filter(|schematic_number| {
+                    let mut range = column.saturating_sub(1)..=column.saturating_add(1);
+
+                    range.any(|entry| schematic_number.location.contains(&entry))
+                })
+                .collect();
+
+            if valid_numbers.len() != 2 {
+                continue;
+            }
+
+            let product = valid_numbers
+                .iter()
+                .map(|schematic_number| schematic_number.value)
+                .product();
+            result.push(product);
+        }
+    }
+
+    result.iter().sum()
 }
