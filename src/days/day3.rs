@@ -129,7 +129,7 @@ fn gears_surrounded_by_two_numbers_multiplied(
     for (row, line) in schematic.iter().enumerate() {
         for (column, token) in line.iter().enumerate() {
             let Token::Part(part) = token else { continue };
-            if let Other = part {
+            if matches!(part, Other) {
                 continue;
             }
 
