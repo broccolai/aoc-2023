@@ -1,32 +1,34 @@
-use std::collections::{HashSet};
-use yaah::aoc;
 use crate::utilities::split_once_and_trim;
+use std::collections::HashSet;
+use yaah::aoc;
 
 struct Card {
     winning_numbers: HashSet<u8>,
-    owned_numbers: HashSet<u8>
+    owned_numbers: HashSet<u8>,
 }
 
 #[aoc(day4, part1)]
 fn day4_part1(input: &'static str) -> usize {
-    input.lines()
+    input
+        .lines()
         .map(parse_into_card)
         .map(|card| calculate_score(&card))
         .sum()
 }
 
 fn parse_into_card(input: &str) -> Card {
-    let (_, raw_numbers) =  split_once_and_trim(input, ':').unwrap();
+    let (_, raw_numbers) = split_once_and_trim(input, ':').unwrap();
     let (raw_winning, raw_owned) = split_once_and_trim(raw_numbers, '|').unwrap();
 
     Card {
         winning_numbers: parse_into_num_array(raw_winning),
-        owned_numbers: parse_into_num_array(raw_owned)
+        owned_numbers: parse_into_num_array(raw_owned),
     }
 }
 
 fn parse_into_num_array(input: &str) -> HashSet<u8> {
-    input.split_ascii_whitespace()
+    input
+        .split_ascii_whitespace()
         .map(str::parse)
         .map(Result::unwrap)
         .collect()
@@ -35,14 +37,12 @@ fn parse_into_num_array(input: &str) -> HashSet<u8> {
 fn calculate_score(card: &Card) -> usize {
     card.winning_numbers
         .intersection(&card.owned_numbers)
-        .fold(0, |acc, _|  if acc == 0 { 1 } else { acc * 2 })
+        .fold(0, |acc, _| if acc == 0 { 1 } else { acc * 2 })
 }
 
 #[aoc(day4, part2)]
 fn day4_part2(input: &'static str) -> u32 {
-    let cards: Vec<Card> = input.lines()
-        .map(parse_into_card)
-        .collect();
+    let cards: Vec<Card> = input.lines().map(parse_into_card).collect();
 
     calculate_amount_of_cards(&cards)
 }
