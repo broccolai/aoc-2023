@@ -1,4 +1,4 @@
-use crate::utilities::split_once_and_trim;
+use crate::utilities::string::split_once_and_trim;
 use std::collections::HashSet;
 use yaah::aoc;
 
