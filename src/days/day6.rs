@@ -1,6 +1,6 @@
 use std::u64;
 
-use crate::utilities::{parse_vec_of_numbers, remove_before_once_and_trim};
+use crate::utilities::string_utilities::{parse_vec_of_numbers, remove_before_once_and_trim};
 use yaah::aoc;
 
 struct Race {
