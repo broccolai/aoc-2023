@@ -44,4 +44,3 @@ where
         self.iter.next().map(|(a, b)| ((self.f)(a), (self.g)(b)))
     }
 }
-
