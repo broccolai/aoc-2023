@@ -1,35 +1,47 @@
-use std::iter::Map;
-
-pub trait MapTupleElements<A, B, C, D>: Iterator<Item = (A, B)> + Sized {
-    fn map_each_tuple_element<F, G>(self, map_first: F, map_second: G) -> Map<Self, fn((A, B)) -> (C, D)>
+// Define a trait with our custom map method for tuples
+pub trait MapTuple: Iterator {
+    fn map_tuple<A, B, C, D, F, G>(self, f: F, g: G) -> MapTupleAdapter<Self, F, G>
     where
-        F: Fn(A) -> C,
-        G: Fn(B) -> D;
-}
-
-impl<I, A, B, C, D> MapTupleElements<A, B, C, D> for I
-where
-    I: Iterator<Item = (A, B)>,
-{
-    fn map_each_tuple_element<F, G>(self, map_first: F, map_second: G) -> Map<Self, fn((A, B)) -> (C, D)>
-    where
-        F: Fn(A) -> C,
-        G: Fn(B) -> D,
+        Self: Iterator<Item = (A, B)> + Sized,
+        F: FnMut(A) -> C,
+        G: FnMut(B) -> D,
     {
-        // Internal function to apply mapping to a single tuple
-        //fn apply<A, B, C, D, F, G>((first, second): (A, B), map_first: F, map_second: G) -> (C, D)
-        //where
-        //    F: FnMut(A) -> C,
-        //    G: FnMut(B) -> D,
-        //{
-        //    (map_first(first), map_second(second))
-        //}
-
-        let aa = map_first
-        let test = self.map(|(first, second)| (map_first(first), map_second(second)));
-
-        test
-        // Apply the mapping functions to each tuple in the iterator
-        // self.map(move |tuple| apply(tuple, map_first, map_second))
+        MapTupleAdapter::new(self, f, g)
     }
 }
+
+// Implement the trait for all iterators that return a tuple
+impl<I, A, B> MapTuple for I where I: Iterator<Item = (A, B)> {}
+
+// A struct to hold the iterator and mapping functions
+pub struct MapTupleAdapter<I, F, G> {
+    iter: I,
+    f: F,
+    g: G,
+}
+
+impl<I, F, G, A, B, C, D> MapTupleAdapter<I, F, G>
+where
+    I: Iterator<Item = (A, B)>,
+    F: FnMut(A) -> C,
+    G: FnMut(B) -> D,
+{
+    fn new(iter: I, f: F, g: G) -> Self {
+        Self { iter, f, g }
+    }
+}
+
+// Implement Iterator for MapTupleAdapter
+impl<I, F, G, A, B, C, D> Iterator for MapTupleAdapter<I, F, G>
+where
+    I: Iterator<Item = (A, B)>,
+    F: FnMut(A) -> C,
+    G: FnMut(B) -> D,
+{
+    type Item = (C, D);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|(a, b)| ((self.f)(a), (self.g)(b)))
+    }
+}
+

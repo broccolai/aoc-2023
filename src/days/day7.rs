@@ -1,5 +1,5 @@
 use yaah::aoc;
-use crate::utilities::tuple_utilities::MapTupleElements;
+use crate::utilities::tuple_utilities::MapTuple;
 
 struct Card(char);
 
@@ -18,7 +18,11 @@ fn day7_part1(input: &'static str) -> usize {
 fn parse_input(input: &str) -> Vec<Hand> {
     input.lines()    
         .filter_map(|line| line.split_once(' '))
-        .map_each_tuple_element(|cards| cards, |bid| bid);
-       
-    Vec::new()
+        .map_tuple(parse_cards, |num| num.parse().unwrap())
+        .map(|(cards, bid)| Hand { cards, bid })
+        .collect()
+}
+
+fn parse_cards(source: &str) -> Vec<Card> {
+    source.chars().map(|char| Card(char)).collect()
 }
