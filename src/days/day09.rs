@@ -12,8 +12,8 @@ fn day9_part1(input: &'static str) -> i32 {
     parse_input(input)
         .histories
         .iter()
-        .map(calculate_history_differences)
-        .map(calculate_next_value)
+        .map(|history| calculate_history_differences(history))
+        .map(|differences| calculate_next_value(&differences))
         .sum()
 }
 
@@ -23,10 +23,13 @@ fn parse_input(input: &str) -> Input {
     Input { histories }
 }
 
-fn calculate_history_differences(history: &Vec<i32>) -> Vec<Vec<i32>> {
+fn calculate_history_differences(history: &[i32]) -> Vec<Vec<i32>> {
     let mut history_differences = vec![history.to_vec()];
 
-    while history_differences.last().is_some_and(all_vec_not_zero) {
+    while history_differences
+        .last()
+        .is_some_and(|values| all_vec_not_zero(values))
+    {
         let next = history_differences
             .last()
             .unwrap()
@@ -41,7 +44,7 @@ fn calculate_history_differences(history: &Vec<i32>) -> Vec<Vec<i32>> {
     history_differences
 }
 
-fn calculate_next_value(history_differences: Vec<Vec<i32>>) -> i32 {
+fn calculate_next_value(history_differences: &[Vec<i32>]) -> i32 {
     history_differences
         .iter()
         .rev()
@@ -49,7 +52,7 @@ fn calculate_next_value(history_differences: Vec<Vec<i32>>) -> i32 {
         .fold(0i32, |last, current| last + *current.last().unwrap())
 }
 
-fn all_vec_not_zero(values: &Vec<i32>) -> bool {
+fn all_vec_not_zero(values: &[i32]) -> bool {
     values.iter().any(|&value| value != 0)
 }
 
@@ -58,12 +61,12 @@ fn day9_part2(input: &'static str) -> i32 {
     parse_input(input)
         .histories
         .iter()
-        .map(calculate_history_differences)
-        .map(calculate_previous_value)
+        .map(|history| calculate_history_differences(history))
+        .map(|differences| calculate_previous_value(&differences))
         .sum()
 }
 
-fn calculate_previous_value(history_differences: Vec<Vec<i32>>) -> i32 {
+fn calculate_previous_value(history_differences: &[Vec<i32>]) -> i32 {
     history_differences
         .iter()
         .rev()

@@ -63,12 +63,12 @@ fn day2_part2(input: &'static str) -> u32 {
     input
         .lines()
         .filter_map(parse_game)
-        .map(draw_from_highest_values)
+        .map(|game| draw_from_highest_values(&game))
         .map(|draw| draw.colors.values().product::<u32>())
         .sum()
 }
 
-fn draw_from_highest_values(game: Game) -> Draw {
+fn draw_from_highest_values(game: &Game) -> Draw {
     let result: HashMap<String, u32> = game.draws.iter().flat_map(|draw| &draw.colors).fold(
         HashMap::new(),
         |mut accumulator, (key, &value)| {

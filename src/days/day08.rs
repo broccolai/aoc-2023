@@ -21,7 +21,7 @@ struct Mapping {
 }
 
 impl Mapping {
-    const fn from_instruction(&self, instruction: &Instruction) -> &String {
+    const fn get_by_instruction(&self, instruction: &Instruction) -> &String {
         match instruction {
             Instruction::Left => &self.left,
             Instruction::Right => &self.right,
@@ -91,7 +91,10 @@ fn find_steps_for_value(input: &Input, value: &str, target: fn(&str) -> bool) ->
                 return None;
             }
 
-            *state = mappings.get(*state).unwrap().from_instruction(instruction);
+            *state = mappings
+                .get(*state)
+                .unwrap()
+                .get_by_instruction(instruction);
             Some(1)
         })
         .count();
@@ -106,7 +109,7 @@ fn day8_part2(input: &'static str) -> i64 {
     parsed_input
         .mappings
         .keys()
-        .filter(|key| key.ends_with("A"))
+        .filter(|key| key.ends_with('A'))
         .map(|value| find_steps_for_value(&parsed_input, value, |current| current.ends_with(END)))
         .map(|number| number as i64)
         .fold(1i64, lcm)

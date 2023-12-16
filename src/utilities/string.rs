@@ -1,5 +1,8 @@
 use std::{fmt::Debug, str::FromStr};
 
+use grid::Grid;
+use itertools::Itertools;
+
 pub fn split_once_and_trim(source: &str, delimiter: char) -> Option<(&str, &str)> {
     source
         .split_once(delimiter)
@@ -19,4 +22,16 @@ where
         .map(str::parse)
         .map(Result::unwrap)
         .collect()
+}
+
+pub fn parse_grid<T>(source: &str, mapper: fn(char) -> T) -> Grid<T> {
+    let values: Vec<Vec<T>> = source
+        .lines()
+        .map(|line| line.chars().map(mapper).collect_vec())
+        .collect_vec();
+
+    let width = values.first().unwrap().len();
+    let flattened_values = values.into_iter().flatten().collect_vec();
+
+    Grid::from_vec(flattened_values, width)
 }

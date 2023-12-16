@@ -23,7 +23,7 @@ where
     F: FnMut(A) -> C,
     G: FnMut(B) -> D,
 {
-    fn new(iter: I, f: F, g: G) -> Self {
+    const fn new(iter: I, f: F, g: G) -> Self {
         Self { iter, f, g }
     }
 }

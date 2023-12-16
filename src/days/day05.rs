@@ -85,7 +85,7 @@ fn process_almanac(almanac: &Almanac) -> Vec<u32> {
 
             for conversion in conversions {
                 for step in &conversion.steps {
-                    if let Some(value) = apply_step_to_seed(step, &processed_seed) {
+                    if let Some(value) = apply_step_to_seed(step, processed_seed) {
                         processed_seed = value;
                         break;
                     }
@@ -99,8 +99,8 @@ fn process_almanac(almanac: &Almanac) -> Vec<u32> {
     processed_seeds
 }
 
-fn apply_step_to_seed(step: &ConversionStep, seed: &u32) -> Option<u32> {
-    if &step.source_start > seed {
+fn apply_step_to_seed(step: &ConversionStep, seed: u32) -> Option<u32> {
+    if step.source_start > seed {
         return None;
     }
 
