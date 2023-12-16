@@ -1,4 +1,4 @@
-use crate::days::day3::Part::{Gear, Other};
+use crate::days::day03::Part::{Gear, Other};
 use std::ops::Range;
 use yaah::aoc;
 
