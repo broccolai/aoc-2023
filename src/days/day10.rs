@@ -1,7 +1,7 @@
 use std::ops::{Add, Div};
 
 use grid::Grid;
-use itertools::unfold;
+use itertools::{unfold, Itertools};
 use yaah::aoc;
 
 use crate::utilities::{
@@ -20,7 +20,7 @@ enum Token {
     Directional(Direction, Direction),
 }
 
-#[derive(Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 enum Direction {
     North,
     East,
@@ -28,7 +28,7 @@ enum Direction {
     West,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 struct Step {
     direction: Direction,
     position: Position,
@@ -87,14 +87,10 @@ impl Direction {
 fn day10_part1(input: &'static str) -> usize {
     let parsed_input = parse_input(input);
 
-    let starting_position = parsed_input
-        .tokens
-        .indexed_iter()
-        .find(|&(_position, token)| token == &Token::Start)
-        .map(|(positon, _)| Position::from_tuple(positon))
-        .unwrap();
-
-    positions_around(&parsed_input.tokens, starting_position)
+    most_valid_steps_starting_at(&parsed_input.tokens, starting_position(&parsed_input))
+        .len()
+        .add(1)
+        .div(2)
 }
 
 fn parse_input(input: &str) -> Input {
@@ -103,19 +99,28 @@ fn parse_input(input: &str) -> Input {
     }
 }
 
-fn positions_around(tokens: &Grid<Token>, position: Position) -> usize {
+fn starting_position(input: &Input) -> Position {
+    input
+        .tokens
+        .indexed_iter()
+        .find(|&(_position, token)| token == &Token::Start)
+        .map(|(positon, _)| Position::from_tuple(positon))
+        .unwrap()
+}
+
+fn most_valid_steps_starting_at(tokens: &Grid<Token>, position: Position) -> Vec<Step> {
     Direction::VALUES
         .iter()
         .map(|&direction| Step {
             direction,
             position,
         })
-        .map(|step| directional_steps(tokens, &step))
-        .max()
-        .unwrap_or(0)
+        .map(|step| most_valid_steps_following(tokens, &step))
+        .max_by_key(Vec::len)
+        .unwrap_or(Vec::new())
 }
 
-fn directional_steps(tokens: &Grid<Token>, step: &Step) -> usize {
+fn most_valid_steps_following(tokens: &Grid<Token>, step: &Step) -> Vec<Step> {
     unfold(*step, |state| {
         let position = Position::add(state.position, state.direction.delta())?;
         let token = tokens.get_with_position(position)?;
@@ -128,7 +133,33 @@ fn directional_steps(tokens: &Grid<Token>, step: &Step) -> usize {
 
         Some(*state)
     })
-    .count()
-    .add(1)
-    .div(2)
+    .collect_vec()
+}
+
+#[aoc(day10, part2)]
+fn day10_part2(input: &'static str) -> i32 {
+    let parsed_input = parse_input(input);
+    let starting_position = starting_position(&parsed_input);
+
+    let mut step_positions = most_valid_steps_starting_at(&parsed_input.tokens, starting_position)
+        .iter()
+        .map(|step| step.position)
+        .collect_vec();
+
+    step_positions.insert(0, starting_position);
+    step_positions.push(starting_position);
+
+    // implementation of the shoelace formula
+    let area = step_positions
+        .iter()
+        .tuple_windows()
+        .fold(0i32, |acc, (current, next)| {
+            acc + (current.row * next.column) - (current.column * next.row)
+        })
+        .abs()
+        .div(2);
+
+    let step_count = step_positions.len() as i32;
+
+    area - (step_count / 2) + 1
 }
