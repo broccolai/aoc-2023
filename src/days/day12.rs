@@ -19,6 +19,23 @@ pub struct Row {
     sizes: Vec<u16>,
 }
 
+impl Row {
+    const EXPAND_AMOUNT: usize = 5;
+
+    fn expand(&self) -> Self {
+        let expanded_sequence = std::iter::repeat(self.sequence.clone())
+            .take(Self::EXPAND_AMOUNT)
+            .intersperse_with(|| vec![Token::Unknown])
+            .flatten()
+            .collect_vec();
+
+        Self {
+            sequence: expanded_sequence,
+            sizes: self.sizes.repeat(Self::EXPAND_AMOUNT),
+        }
+    }
+}
+
 #[aoc_generator(day12)]
 fn generator_one(input: &'static str) -> Vec<Row> {
     input
@@ -52,6 +69,14 @@ fn parse_sizes(sizes: &str) -> Vec<u16> {
 #[aoc(day12, part1)]
 fn part_one(rows: &[Row]) -> usize {
     rows.iter().map(count_arrangements).sum()
+}
+
+#[aoc(day12, part2)]
+fn part_two(rows: &[Row]) -> usize {
+    rows.iter()
+        .map(Row::expand)
+        .map(|row| count_arrangements(&row))
+        .sum()
 }
 
 fn count_arrangements(row: &Row) -> usize {
