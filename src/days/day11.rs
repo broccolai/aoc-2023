@@ -22,38 +22,47 @@ fn generator(input: &'static str) -> Universe {
 
 #[aoc(day11, part1)]
 fn part_one(universe: &Universe) -> usize {
-    calculate_universe_distances(universe, 2)
+    calculate_expanded_distances(universe, 2)
 }
 
 #[aoc(day11, part2)]
 fn part_two(universe: &Universe) -> usize {
-    calculate_universe_distances(universe, 1000000)
+    calculate_expanded_distances(universe, 1_000_000)
 }
 
-fn calculate_universe_distances(universe: &Universe, expansion_amount: usize) -> usize {
+fn calculate_expanded_distances(universe: &Universe, expansion_factor: usize) -> usize {
     let (empty_rows, empty_columns) = empty_lines(universe);
 
     galaxy_points(universe)
         .iter()
         .tuple_combinations()
-        .map(|(a, b)| {
-            let min = Point::min(a, b);
-            let max = Point::max(a, b);
-            let empty_relevant_rows = empty_rows
-                .iter()
-                .filter(|&row| row >= &min.x && row <= &max.x)
-                .count();
-
-            let empty_relevant_columns = empty_columns
-                .iter()
-                .filter(|&column| column >= &min.y && column <= &max.y)
-                .count();
-
-            let expansion = (empty_relevant_columns + empty_relevant_rows) * (expansion_amount - 1);
-
-            manhatten_distance(a, b) + expansion
-        })
+        .map(|(a, b)| calculate_distance(a, b, &empty_rows, &empty_columns, expansion_factor))
         .sum()
+}
+
+fn calculate_distance(
+    point_a: &Point<usize>,
+    point_b: &Point<usize>,
+    empty_rows: &[usize],
+    empty_columns: &[usize],
+    expansion_factor: usize,
+) -> usize {
+    let min_point = Point::min(point_a, point_b);
+    let max_point = Point::max(point_a, point_b);
+
+    let relevant_empty_rows = count_relevant_lines(empty_rows, min_point.x, max_point.x);
+    let relevant_empty_columns = count_relevant_lines(empty_columns, min_point.y, max_point.y);
+
+    let expansion = (relevant_empty_columns + relevant_empty_rows) * (expansion_factor - 1);
+
+    Point::manhatten_distance(point_a, point_b) + expansion
+}
+
+fn count_relevant_lines(lines: &[usize], min: usize, max: usize) -> usize {
+    lines
+        .iter()
+        .filter(|&&line| line >= min && line <= max)
+        .count()
 }
 
 fn galaxy_points(universe: &Universe) -> Vec<Point<usize>> {
@@ -81,10 +90,6 @@ fn empty_lines(universe: &Universe) -> (Vec<usize>, Vec<usize>) {
         .collect_vec();
 
     (horizontal_lines, vertical_lines)
-}
-
-const fn manhatten_distance(a: &Point<usize>, b: &Point<usize>) -> usize {
-    usize::abs_diff(a.x, b.x) + usize::abs_diff(a.y, b.y)
 }
 
 fn is_empty(token: &Token) -> bool {
