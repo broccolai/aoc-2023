@@ -25,6 +25,11 @@ fn part_one(universe: &Universe) -> usize {
     calculate_universe_distances(universe, 2)
 }
 
+#[aoc(day11, part2)]
+fn part_two(universe: &Universe) -> usize {
+    calculate_universe_distances(universe, 1000000)
+}
+
 fn calculate_universe_distances(universe: &Universe, expansion_amount: usize) -> usize {
     let (empty_rows, empty_columns) = empty_lines(universe);
 
