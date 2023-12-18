@@ -4,6 +4,7 @@ aoc_year!(2023);
 
 mod utilities {
     pub mod grid;
+    pub mod point;
     pub mod string;
     pub mod tuple;
 }
@@ -19,6 +20,7 @@ mod days {
     pub mod day08;
     pub mod day09;
     pub mod day10;
+    pub mod day11;
 }
 
 aoc_lib!(with_benchmarks);
