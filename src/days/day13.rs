@@ -1,3 +1,5 @@
+use std::iter;
+
 use grid::Grid;
 use itertools::Itertools;
 use yaah::{aoc, aoc_generator};
@@ -26,22 +28,31 @@ fn generate(input: &'static str) -> Vec<Grid<Token>> {
 
 #[aoc(day13, part1)]
 fn part_one(patterns: &[Grid<Token>]) -> usize {
-    patterns.iter().map(find_reflection).sum()
+    patterns
+        .iter()
+        .map(|pattern| find_reflection(pattern, 0))
+        .sum()
 }
 
-fn find_reflection(pattern: &Grid<Token>) -> usize {
-    let (pattern_rows, pattern_columns) = pattern.size();
+#[aoc(day13, part2)]
+fn part_two(patterns: &[Grid<Token>]) -> usize {
+    patterns
+        .iter()
+        .map(|pattern| find_reflection(pattern, 1))
+        .sum()
+}
 
-    let column_search = find_relection_in_lines(pattern_columns - 1, |before, after| {
-        itertools::equal(pattern.iter_col(before), pattern.iter_col(after))
+fn find_reflection(pattern: &Grid<Token>, tolerance: usize) -> usize {
+    let column_search = find_relection_in_lines(pattern.cols() - 1, tolerance, |index| {
+        pattern.iter_col(index)
     });
 
     if let Some(column_result) = column_search {
         return column_result;
     }
 
-    let row_search = find_relection_in_lines(pattern_rows - 1, |before, after| {
-        itertools::equal(pattern.iter_row(before), pattern.iter_row(after))
+    let row_search = find_relection_in_lines(pattern.rows() - 1, tolerance, |index| {
+        pattern.iter_row(index)
     });
 
     if let Some(row_result) = row_search {
@@ -51,25 +62,45 @@ fn find_reflection(pattern: &Grid<Token>) -> usize {
     unreachable!()
 }
 
-fn find_relection_in_lines(
+fn find_relection_in_lines<'a, T>(
     max_distance: usize,
-    is_mirror_match: impl Fn(usize, usize) -> bool,
-) -> Option<usize> {
+    tolerance: usize,
+    tokens_from_index: impl Fn(usize) -> T,
+) -> Option<usize>
+where
+    T: Iterator<Item = &'a Token>,
+{
     (0..max_distance)
         .find(|center_index| {
-            let mut edge_distances = 0..usize::min(center_index + 1, max_distance - center_index);
-
-            edge_distances
-                .all(|offset| is_mirror_match(center_index - offset, center_index + offset + 1))
+            (0..usize::min(center_index + 1, max_distance - center_index))
+                .map(|offset| {
+                    iter::zip(
+                        tokens_from_index(center_index - offset),
+                        tokens_from_index(center_index + offset + 1),
+                    )
+                    .filter(|&(before, after)| before != after)
+                    .count()
+                })
+                .sum::<usize>()
+                .eq(&tolerance)
         })
         .map(|index| index + 1)
 }
 
+const SAMPLE: &str = include_str!("../../input/2023_sample/day13.txt"); 
+
 #[test]
-fn test() {
-    let sample = include_str!("../../input/2023_sample/day13.txt");
-    let source = generate(sample);
+fn test_part_one() {
+    let source = generate(SAMPLE);
     let result = part_one(&source);
 
     assert_eq!(result, 405);
+}
+
+#[test]
+fn test_part_two() {
+    let source = generate(SAMPLE);
+    let result = part_two(&source);
+
+    assert_eq!(result, 400);
 }
