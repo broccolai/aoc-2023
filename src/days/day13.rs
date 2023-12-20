@@ -2,7 +2,7 @@ use std::iter;
 
 use grid::Grid;
 use itertools::Itertools;
-use yaah::{aoc, aoc_generator};
+use yaah::{aoc, aoc_generator, aoc_test};
 
 use crate::utilities::string::parse_grid;
 
@@ -87,20 +87,12 @@ where
         .map(|index| index + 1)
 }
 
-const SAMPLE: &str = include_str!("../../input/2023_sample/day13.txt"); 
-
-#[test]
-fn test_part_one() {
-    let source = generate(SAMPLE);
-    let result = part_one(&source);
-
-    assert_eq!(result, 405);
+#[aoc_test(day13, part1)]
+fn test_part_one() -> usize { 
+    405 
 }
 
-#[test]
-fn test_part_two() {
-    let source = generate(SAMPLE);
-    let result = part_two(&source);
-
-    assert_eq!(result, 400);
+#[aoc_test(day13, part2)]
+fn test_part_two() -> usize {
+    400
 }
