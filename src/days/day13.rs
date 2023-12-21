@@ -88,8 +88,8 @@ where
 }
 
 #[aoc_test(day13, part1)]
-fn test_part_one() -> usize { 
-    405 
+fn test_part_one() -> usize {
+    405
 }
 
 #[aoc_test(day13, part2)]

@@ -42,3 +42,13 @@ impl<T> PositonGrid<T> for Grid<T> {
         self.get(positon.row as usize, positon.column as usize)
     }
 }
+
+pub trait UtilityGrid<T> {
+    fn set(&mut self, row: usize, column: usize, value: T);
+}
+
+impl<T> UtilityGrid<T> for Grid<T> {
+    fn set(&mut self, row: usize, column: usize, value: T) {
+        *self.get_mut(row, column).unwrap() = value;
+    }
+}
